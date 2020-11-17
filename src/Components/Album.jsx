@@ -109,14 +109,18 @@ class Album extends React.Component {
             
             query MyQuery {
                 Photographer(where: {Email: {_eq: "${email}"}}) {
-                  City
-                  Country
-                  Email
-                  FName
-                  Gender
-                  LName
-                  ProfilePictureName
-                  WorkTitle
+                 
+                 
+                    City
+                    Country
+                    Email
+                    FName
+                    Gender
+                    LName
+                    ProfilePictureName
+                    WorkTitle
+
+                 
                 }
               }
               
@@ -135,7 +139,7 @@ class Album extends React.Component {
         }
         // console.log(data.Photographer);
 
-        await this.setState({ photographerData: data.Photographer });
+        await this.setState({ photographerData: data.Photographer[0] });
         console.log(this.state.photographerData);
 
 
@@ -221,40 +225,53 @@ class Album extends React.Component {
             this.setState({ photosToUpload: e.target.result })
         }
     }
-    handleUpload = () => {
-
-        console.log("email", this.state.email);
-        console.log("photosName", this.state.photosToUpload);
-        const requestOptions = {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-
-
-            body: JSON.stringify({
-                photographerEmail: this.state.email,
-                photosName: this.state.photosToUpload,
-            })
-        };
-
-
-
+    handleUpload = async () => {
         console.log("upload image");
 
-        fetch('https://localhost:5001/photos/InsertPhotos', requestOptions)
-            .then(response => {
-                response.json();
-                console.log("response", response);
-                if (response.status == 200) {
-                    console.log("successfully added");
-                    this.setState({
-                        sucess: 'Sccessfully uploaded...'
-                    })
 
+        // 
 
+        console.log("this is the submit button");
+        const { loading, error, data } = await this.props.client.mutate({
+            mutation: gql`
+            
+            mutation {
+                insert_Photos(objects: {
+                     PhotographerEmail: "${this.state.email}",
+                     PhotosName: "${this.state.photosToUpload}"
+                    
+                    }) {
+                  affected_rows
+                  returning {
+                    PhotosId
+                  }
                 }
-            });
+              }
+              
+`,
+
+            variables: null,
+        })
+
+        if (error) {
+            console.error(error);
+            return (<div>
+                Error : error.toString();
+            </div>)
+        }
+
+        this.setState({
+            sucess: 'Sccessfully uploaded...'
+        })
+
+
+
+        // console.log(data.insert_photographer.returning[0].PhotographerId);
+
+
+
+        // 
+
 
     }
     render() {
@@ -282,23 +299,23 @@ class Album extends React.Component {
                                     <Card className={classes.card}>
                                         <CardMedia
                                             className={classes.cardMedia}
-                                            image={photographerData.profilePictureName}
+                                            image={photographerData.ProfilePictureName}
                                             title="Image title"
                                         />
 
 
                                         <CardContent className={classes.cardContent}>
                                             <Typography gutterBottom variant="h5" component="h2">
-                                                {photographerData.fName} {photographerData.lName}
+                                                {photographerData.FName} {photographerData.LName}
                                             </Typography>
                                             <Typography>
-                                                {photographerData.workTitle}
+                                                {photographerData.WorkTitle}
                                             </Typography>
                                             <Typography>
-                                                {photographerData.country}
+                                                {photographerData.Country}
                                             </Typography>
                                             <Typography>
-                                                {photographerData.city}
+                                                {photographerData.City}
                                             </Typography>
 
                                         </CardContent>
@@ -334,9 +351,10 @@ class Album extends React.Component {
                                     <Card className={classes.card}>
                                         <CardMedia
                                             className={classes.cardMedia}
-                                            image={photo.photosName}
+                                            image={photo.PhotosName}
                                             title="profile"
                                         />
+
                                         <CardContent className={classes.cardContent}>
                                             <Typography gutterBottom variant="h5" component="h2">
                                                 {/* {photographer.fName + " " + photographer.lName} */}
