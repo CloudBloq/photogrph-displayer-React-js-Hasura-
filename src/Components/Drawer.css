@@ -1,0 +1,20 @@
+.body{
+    background-color: rgb(96, 102, 96);
+}
+
+.button{
+margin-left: 1500px;
+
+}
+.profile{
+    margin-bottom: 400px;
+}
+.button_upload{
+    margin-right: 20px;
+}
+.success{
+    color: green;
+    margin-left: 15%;
+    font-weight: bold;
+    font-size: 20;
+}
