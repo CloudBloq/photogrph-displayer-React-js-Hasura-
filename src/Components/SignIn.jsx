@@ -13,6 +13,8 @@ import Typography from '@material-ui/core/Typography';
 import { makeStyles } from '@material-ui/core/styles';
 import Container from '@material-ui/core/Container';
 import { withStyles } from '@material-ui/core/styles';
+import { withApollo } from '@apollo/react-hoc';
+import { gql } from 'apollo-boost';
 import '../../node_modules/bootstrap/dist/css/bootstrap.min.css'
 
 
@@ -46,19 +48,53 @@ class SignIn extends React.Component {
         password: ''
     }
 
-    componentDidMount = () => {
+    componentDidMount = async () => {
+        console.log("this is the submit button");
+        const { loading, error, data } = await this.props.client.query({
+            query: gql`
+            
+            query MyQuery {
+                Photographer {
+                  Email
+                  Password
+                }
+              }
+            `,
 
-        const proxyurl = 'https://cors-anywhere.herokuapp.com/';
-        const apiUrl = "https://localhost:5001/Authentication/getAllAuthentictedUser";
-
-        setTimeout(fetch(apiUrl)
-            .then((response) => response.json())
-            .then((data) => {
-                console.log("data from server side", data);
-                this.setState({ autorisedzUser: data });
-            }), 20);
+            variables: null,
+        });
 
 
+
+        if (error) {
+            console.error(error);
+            return (<div>
+                Error : error.toString();
+            </div>)
+        }
+        // console.log(data.Photographer);
+
+        await this.setState({ autorisedzUser: data.Photographer });
+
+        /*
+                console.log(data.insert_photographer.returning[0].PhotographerId);
+        
+                this.props.history.push('/login');
+        
+        
+                const proxyurl = 'https://cors-anywhere.herokuapp.com/';
+                const apiUrl = "https://localhost:5001/Authentication/getAllAuthentictedUser";
+        
+        
+        
+                setTimeout(fetch(apiUrl)
+                    .then((response) => response.json())
+                    .then((data) => {
+                        console.log("data from server side", data);
+                        this.setState({ autorisedzUser: data });
+                    }), 20);
+        
+        */
 
     }
     Copyright = () => {
@@ -102,6 +138,7 @@ class SignIn extends React.Component {
             });
     }
     handleLogin = () => {
+        // console.log(this.state.autorisedzUser);
         const singleUser = this.state.autorisedzUser;
         // handle login method
         console.log("this is the autorized user came from the database", this.state.autorisedzUser);
@@ -114,47 +151,44 @@ class SignIn extends React.Component {
         }
         for (var index = 0; index < singleUser.length; index++) {
 
+            if (user.password === singleUser[index].password) {
+                console.log("autorized user");
+                this.addLoggedInUser(user.email);
+                this.props.history.push('/home');
+                // window.open("/home");
+                // <Link
+                // to={{
+                // pathname: "/home",
+                // email: user.email // your data array of objects
+                // }}
+                // >Go to Home</Link>
+                // this.props.history.push({
+                // pathname: '/home',
+                // email: user.email // your data array of objects
+                // })
 
+                // this.props.history.push({
+                // pathname: '/home',
+                // data: {
+                // email: user.email
+                // }
+                // your data array of objects
+                // })
 
-            if (user.email == singleUser[index].email) {
-                if (user.password == singleUser[index].password) {
-                    console.log("autorized user");
-                    this.addLoggedInUser(user.email);
-                    this.props.history.push('/home');
-                    // window.open("/home");
-                    // <Link
-                    // to={{
-                    // pathname: "/home",
-                    // email: user.email // your data array of objects
-                    // }}
-                    // >Go to Home</Link>
-                    // this.props.history.push({
-                    // pathname: '/home',
-                    // email: user.email // your data array of objects
-                    // })
-
-                    // this.props.history.push({
-                    // pathname: '/home',
-                    // data: {
-                    // email: user.email
-                    // }
-                    // your data array of objects
-                    // })
-
-                    break;
-                } else {
-
-                    this.setState({ displayOnLable: 'Incorrect Password' });
-                    console.log("incorrect password");
-                    break;
-                }
+                break;
             } else {
-                this.setState({ displayOnLable: 'Incorrect Email and Password' });
-                console.log("incorrect email and passowrd");
 
+                this.setState({ displayOnLable: 'Incorrect Password' });
+                console.log("incorrect password");
+                break;
             }
+        } else {
+            this.setState({ displayOnLable: 'Incorrect Email and Password' });
+            console.log("incorrect email and passowrd");
 
-        };
+        }
+
+    };
 
 
 
@@ -163,90 +197,90 @@ class SignIn extends React.Component {
 
 
 
-        // if (this.state.autorisedzUser.includes(user)) {
-        // console.log("Autorized used");
-        // this.setState({ isAutorized: true });
-        // }
-        // else {
-        // console.log("the user is not registered");
-        // }
+    // if (this.state.autorisedzUser.includes(user)) {
+    // console.log("Autorized used");
+    // this.setState({ isAutorized: true });
+    // }
+    // else {
+    // console.log("the user is not registered");
+    // }
 
-    }
-
-    render() {
-        const text = this.state.displayOnLable;
-        const { classes } = this.props;
-        return (
-            <Container component="main" maxWidth="xs">
-                <CssBaseline />
-                <div className={classes.paper}>
-                    <Avatar className={classes.avatar}>
-                        <LockOutlinedIcon />
-                    </Avatar>
-                    <Typography component="h1" variant="h5">
-                        Sign in
-        </Typography>
-
-                    <form className={classes.form} noValidate>
-                        <div className=".text-danger">{text}</div>
-                        <TextField
-                            variant="outlined"
-                            margin="normal"
-                            required
-                            fullWidth
-                            id="email"
-                            label="Email Address"
-                            name="email"
-                            autoComplete="email"
-                            autoFocus
-                            onInput={e => this.setState({ email: e.target.value })}
-                        />
-                        <TextField
-                            variant="outlined"
-                            margin="normal"
-                            required
-                            fullWidth
-                            name="password"
-                            label="Password"
-                            type="password"
-                            id="password"
-                            autoComplete="current-password"
-                            onInput={e => this.setState({ password: e.target.value })}
-                        />
-                        <FormControlLabel
-                            control={<Checkbox value="remember" color="primary" />}
-                            label="Remember me"
-                        />
-                        <Button
-                            onClick={this.handleLogin}
-                            fullWidth
-                            variant="contained"
-                            color="primary"
-
-                            className={classes.submit}
-                        >
-                            Sign In
-          </Button>
-                        <Grid container>
-                            <Grid item xs>
-                                <Link href="#" variant="body2">
-                                    Forgot password?
-              </Link>
-                            </Grid>
-                            <Grid item>
-                                <Link href="/signUp" variant="body2">
-                                    {"Don't have an account? Sign Up"}
-                                </Link>
-                            </Grid>
-                        </Grid>
-                    </form>
-                </div>
-                <Box mt={8}>
-
-                </Box>
-            </Container>
-        );
-    }
 }
 
-export default withStyles(useStyles)(SignIn)
+render() {
+    const text = this.state.displayOnLable;
+    const { classes } = this.props;
+    return (
+        <Container component="main" maxWidth="xs">
+            <CssBaseline />
+            <div className={classes.paper}>
+                <Avatar className={classes.avatar}>
+                    <LockOutlinedIcon />
+                </Avatar>
+                <Typography component="h1" variant="h5">
+                    Sign in
+        </Typography>
+
+                <form className={classes.form} noValidate>
+                    <div className=".text-danger">{text}</div>
+                    <TextField
+                        variant="outlined"
+                        margin="normal"
+                        required
+                        fullWidth
+                        id="email"
+                        label="Email Address"
+                        name="email"
+                        autoComplete="email"
+                        autoFocus
+                        onInput={e => this.setState({ email: e.target.value })}
+                    />
+                    <TextField
+                        variant="outlined"
+                        margin="normal"
+                        required
+                        fullWidth
+                        name="password"
+                        label="Password"
+                        type="password"
+                        id="password"
+                        autoComplete="current-password"
+                        onInput={e => this.setState({ password: e.target.value })}
+                    />
+                    <FormControlLabel
+                        control={<Checkbox value="remember" color="primary" />}
+                        label="Remember me"
+                    />
+                    <Button
+                        onClick={this.handleLogin}
+                        fullWidth
+                        variant="contained"
+                        color="primary"
+
+                        className={classes.submit}
+                    >
+                        Sign In
+          </Button>
+                    <Grid container>
+                        <Grid item xs>
+                            <Link href="#" variant="body2">
+                                Forgot password?
+              </Link>
+                        </Grid>
+                        <Grid item>
+                            <Link href="/signUp" variant="body2">
+                                {"Don't have an account? Sign Up"}
+                            </Link>
+                        </Grid>
+                    </Grid>
+                </form>
+            </div>
+            <Box mt={8}>
+
+            </Box>
+        </Container>
+    );
+}
+}
+
+export default withApollo(withStyles(useStyles)(SignIn))
