@@ -13,24 +13,10 @@ import Typography from '@material-ui/core/Typography';
 import { makeStyles } from '@material-ui/core/styles';
 import Container from '@material-ui/core/Container';
 import './Drawer.css'
+import { withApollo } from '@apollo/react-hoc';
+import { gql } from 'apollo-boost';
 import Heading from './Heading';
 import { useLocation } from 'react-router-dom'
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 const useStyles = theme => ({
     icon: {
@@ -81,46 +67,110 @@ class Album extends React.Component {
 
 
     }
-
-
-
-
-
-
-
-
     getLogedInEmail = async () => {
-        const apiUrl3 = " https://localhost:5001/LoggedInPhotographer/getAllLogedInPhotographers";
-        await fetch(apiUrl3)
-            .then((response) => response.json())
-            .then((data) => {
-                console.log("logged in user information", data);
-                this.setState({ loggedInPhotographers: data });
 
-            });
+
+        console.log("this is the submit button");
+        const { loading, error, data } = await this.props.client.query({
+            query: gql`
+            
+            query MyQuery {
+                LoggedInPhotographer {
+                  Email
+                }
+              }
+            `,
+
+            variables: null,
+        });
+
+
+
+        if (error) {
+            console.error(error);
+            return (<div>
+                Error : error.toString();
+            </div>)
+        }
+        // console.log(data.Photographer);
+
+        await this.setState({ loggedInPhotographers: data.LoggedInPhotographer });
+        console.log(this.state.loggedInPhotographers);
+
+
 
 
     }
-    getPhotographerInformation = (email) => {
-        const apiUrl = " https://localhost:5001/Photographer/getPhotographerByEmail?email=" + email;
-        fetch(apiUrl)
-            .then((response) => response.json())
-            .then((data) => {
-                console.log("photographer self information", data);
-                this.setState({ photographerData: data });
-            });
+    getPhotographerInformation = async (email) => {
+
+        console.log("getPhotographerInformationn");
+        const { loading, error, data } = await this.props.client.query({
+            query: gql`
+            
+            query MyQuery {
+                Photographer(where: {Email: {_eq: "${email}"}}) {
+                  City
+                  Country
+                  Email
+                  FName
+                  Gender
+                  LName
+                  ProfilePictureName
+                  WorkTitle
+                }
+              }
+              
+            `,
+
+            variables: null,
+        });
+
+
+
+        if (error) {
+            console.error(error);
+            return (<div>
+                Error : error.toString();
+            </div>)
+        }
+        // console.log(data.Photographer);
+
+        await this.setState({ photographerData: data.Photographer });
+        console.log(this.state.photographerData);
+
+
     }
 
-    getPhotoByEmail = (email) => {
-        console.log("get Photo By Email method");
+    getPhotoByEmail = async (email) => {
+        console.log("this is the submit button");
+        const { loading, error, data } = await this.props.client.query({
+            query: gql`
+            
+            query MyQuery {
+                Photos(where: {PhotographerEmail: {_eq: "${email}"}}) {
+                  PhotosName
+                }
+              }
+              
+            `,
 
-        const apiUrl3 = "https://localhost:5001/photos/getPhotosByEmail?email=" + email;
-        fetch(apiUrl3)
-            .then((response) => response.json())
-            .then((data) => {
-                console.log("photos", data);
-                this.setState({ photosByEmail: data });
-            });
+            variables: null,
+        });
+
+
+
+        if (error) {
+            console.error(error);
+            return (<div>
+                Error : error.toString();
+            </div>)
+        }
+        // console.log(data.Photographer);
+
+        await this.setState({ photosByEmail: data.Photos });
+
+        console.log(this.state.photosByEmail);
+
 
 
 
@@ -134,14 +184,14 @@ class Album extends React.Component {
         await this.getLogedInEmail();
         // await this.getPhotoByEmail()
         var emails = [...this.state.loggedInPhotographers];
-        var email = emails[emails.length - 1].email;//get last item in the array  
+        var email = emails[emails.length - 1].Email;//get last item in the array  
 
         console.log("logged in users", this.state.loggedInPhotographers);
         console.log("email logged in", email);
 
         await this.setState({ email: email });
-        this.getPhotoByEmail(email);
-        this.getPhotographerInformation(email);
+        await this.getPhotoByEmail(email);
+        await this.getPhotographerInformation(email);
 
 
         console.log("photots", this.state.photographerData);
@@ -151,6 +201,8 @@ class Album extends React.Component {
 
 
     }
+
+
     getCurrentlyLoggedInUser = () => {
         console.log("this is the  getCurrentlyLoggedInUserMehtod");
         const new_email = "yaredyaya16@gmail.com";
@@ -185,6 +237,7 @@ class Album extends React.Component {
                 photosName: this.state.photosToUpload,
             })
         };
+
 
 
         console.log("upload image");
@@ -310,5 +363,5 @@ class Album extends React.Component {
         );
     }
 }
-export default withStyles(useStyles)(Album)
+export default withApollo(withStyles(useStyles)(Album))
 
