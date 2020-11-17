@@ -107,18 +107,18 @@ class SignUp extends React.Component {
         const { loading, error, data } = await this.props.client.mutate({
             mutation: gql`
             
-mutation {
-    insert_Photographer(objects: {
-      City: " ${this.state.city}", 
-      Country: "${this.state.country}",
-      Email: "${this.state.email}",
-      FName: "${this.state.fName}", 
-      Gender: "${this.state.gender}", 
-      LName: "${this.state.lName}", 
-      Password: "${this.state.password}", 
-      ProfilePictureName: "${this.state.profilePictureName}", 
-      WorkTitle: "${this.state.workTitle}"
-    }
+    mutation {
+        insert_Photographer(objects: {
+            City: " ${this.state.city}", 
+            Country: "${this.state.country}",
+            Email: "${this.state.email}",
+            FName: "${this.state.fName}", 
+            Gender: "${this.state.gender}", 
+            LName: "${this.state.lName}", 
+            Password: "${this.state.password}", 
+            ProfilePictureName: "${this.state.profilePictureName}", 
+            WorkTitle: "${this.state.workTitle}"
+        }
     ) {
       affected_rows
       returning {
@@ -139,7 +139,7 @@ mutation {
         }
 
 
-        console.log(data.insert_photographer.returning[0].PhotographerId);
+        // console.log(data.insert_photographer.returning[0].PhotographerId);
 
         this.props.history.push('/login');
 
