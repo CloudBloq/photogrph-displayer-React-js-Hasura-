@@ -139,7 +139,7 @@ mutation {
         }
 
 
-        console.log(data);
+        console.log(data.insert_photographer.returning[0].PhotographerId);
 
         this.props.history.push('/login');
 
