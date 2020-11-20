@@ -250,6 +250,7 @@ class Album extends React.Component {
               
 `,
 
+
             variables: null,
         })
 
@@ -260,9 +261,18 @@ class Album extends React.Component {
             </div>)
         }
 
-        this.setState({
+        await this.setState({
             sucess: 'Sccessfully uploaded...'
         })
+
+        this.photoSubscription();
+
+
+
+
+
+
+
 
 
 
@@ -272,6 +282,22 @@ class Album extends React.Component {
 
         // 
 
+
+    }
+    photoSubscription = async () => {
+        const { loading, error, data } = await this.props.client.subscription({
+            subscription: gql`
+            
+            subscription MySubscription {
+                Photos(where: {PhotographerEmail: {_eq: "${this.state.email}"}}) {
+                  PhotosName
+                }
+              }
+              
+              
+            `,
+        });
+        await this.setState({ photosByEmail: data.Photos });
 
     }
     render() {

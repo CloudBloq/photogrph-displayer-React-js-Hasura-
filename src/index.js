@@ -5,21 +5,54 @@ import { Switch, Route, Link, BrowserRouter } from 'react-router-dom'
 import App from './App'
 import Login from './Components/SignIn';
 import SignUp from './Components/SignUp';
-
-// import { ApolloProvider } from '@apollo/client'
-// import { ApolloClient, HttpLink, InMemoryCache } from '@apollo/client'
-import ApolloClient from 'apollo-boost';
+// import ApolloClient from 'apollo-boost';
 import { ApolloProvider } from 'react-apollo';
+// import { WebSocketLink } from '@apollo/client/link/ws';
+import {
 
-// Pass your GraphQL endpoint to uri
-const client = new ApolloClient({ uri: 'https://genuine-mammoth-32.hasura.app/v1/graphql' });
+  ApolloClient,
+  HttpLink,
+  InMemoryCache,
+  split,
+} from "@apollo/client";
+import { getMainDefinition } from "@apollo/client/utilities";
+import { WebSocketLink } from "@apollo/link-ws";
 
-// const client = new ApolloClient({
-//   cache: new InMemoryCache(),
-//   link: new HttpLink({
-//     uri: 'https://genuine-mammoth-32.hasura.app/v1/graphql',
-//   })
-// })
+
+
+// const httpClient = new ApolloClient({ uri: 'https://genuine-mammoth-32.hasura.app/v1/graphql' });
+
+const GRAPHQL_ENDPOINT = 'genuine-mammoth-32.hasura.app/v1/graphql';
+
+const httpLink = new HttpLink({
+  uri: `https://${GRAPHQL_ENDPOINT}`,
+});
+
+const wsLink = new WebSocketLink({
+  uri: `ws://${GRAPHQL_ENDPOINT}`,
+  options: {
+    reconnect: true,
+  },
+});
+
+const splitLink = split(
+  ({ query }) => {
+    const definition = getMainDefinition(query);
+    return (
+      definition.kind === "OperationDefinition" &&
+      definition.operation === "subscription"
+    );
+  },
+  wsLink,
+  httpLink
+);
+
+const client = new ApolloClient({
+  cache: new InMemoryCache(),
+  link: splitLink,
+});
+// const httpClient = new ApolloClient({ uri: 'https://genuine-mammoth-32.hasura.app/v1/graphql' });
+
 class Routing extends React.Component {
   render() {
     return (
@@ -36,20 +69,6 @@ class Routing extends React.Component {
     )
   }
 }
-
-// const Routing = () => {
-
-//   return (
-//     <div>
-
-//       <Route exact path="/home" component={App} />
-//       <Route exact path="/login" component={Login} />
-//       <Route exact path="/signUp" component={SignUp} />
-
-//   </div>
-//   );
-
-// }
 
 ReactDOM.render(
   <BrowserRouter>
