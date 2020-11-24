@@ -27,7 +27,7 @@ import './Drawer.css'
 
 
 const drawerWidth = 240;
-const bgColor= "#424242";
+const bgColor = "#424242";
 
 const useStyles = makeStyles((theme) => ({
     root: {
@@ -37,15 +37,15 @@ const useStyles = makeStyles((theme) => ({
         [theme.breakpoints.up('sm')]: {
             width: drawerWidth,
             flexShrink: 0,
-            backgroundColor:bgColor,
+            backgroundColor: bgColor,
         },
-        
+
     },
     appBar: {
         [theme.breakpoints.up('sm')]: {
             width: `calc(100% - ${drawerWidth}px)`,
             marginLeft: drawerWidth,
-           
+
         },
     },
     menuButton: {
@@ -81,15 +81,15 @@ function ResponsiveDrawer(props) {
             <div>
                 <Card className={classes.card}>
                     <CardMedia className={classes.cardMedia}
-                    component="img"
-                    className={classes.media}
-                    image="../Assets/Images/photo_2020-09-04_16-42-14.jpg"
-                    title="Contemplative Reptile"
-                 
+                        component="img"
+                        className={classes.media}
+                        image="../Assets/Images/photo_2020-09-04_16-42-14.jpg"
+                        title="Contemplative Reptile"
+
                     />
 
-                        {/* <img src={require('../Assets/Images/photo_2020-09-04_16-42-14.jpg')} alt="recipe thumbnail" /> */}
-                  
+                    {/* <img src={require('../Assets/Images/photo_2020-09-04_16-42-14.jpg')} alt="recipe thumbnail" /> */}
+
 
 
 
@@ -115,21 +115,6 @@ function ResponsiveDrawer(props) {
             <h3>yared solomon</h3>
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
         </div>
     );
 
@@ -139,80 +124,10 @@ function ResponsiveDrawer(props) {
         <div className={classes.root}>
             <CssBaseline />
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
             <main className={classes.content}>
                 <div className={classes.toolbar} />
 
                 <Album />
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
             </main>
         </div>

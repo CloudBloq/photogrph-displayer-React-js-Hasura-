@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { Component, Fragment } from 'react';
 
 import Button from '@material-ui/core/Button';
 import { withStyles } from '@material-ui/core/styles';
@@ -13,10 +13,9 @@ import Typography from '@material-ui/core/Typography';
 import { makeStyles } from '@material-ui/core/styles';
 import Container from '@material-ui/core/Container';
 import './Drawer.css'
-import { withApollo } from '@apollo/react-hoc';
-import { gql } from 'apollo-boost';
-import Heading from './Heading';
-import { useLocation } from 'react-router-dom'
+// import { withApollo } from '@apollo/react-hoc';
+import { gql } from '@apollo/client';
+import { withApollo, Subscription } from 'react-apollo'
 
 const useStyles = theme => ({
     icon: {
@@ -55,7 +54,7 @@ const useStyles = theme => ({
 
 const cards = [1, 2, 3, 4, 5, 6, 7, 8, 9];
 
-class Album extends React.Component {
+class Album extends Component {
 
     state = {
         photosByEmail: [],
@@ -67,10 +66,11 @@ class Album extends React.Component {
 
 
     }
+    // Get Logged in user email
     getLogedInEmail = async () => {
 
 
-        console.log("this is the submit button");
+        console.log("this is logged in users");
         const { loading, error, data } = await this.props.client.query({
             query: gql`
             
@@ -82,6 +82,7 @@ class Album extends React.Component {
             `,
 
             variables: null,
+
         });
 
 
@@ -101,6 +102,7 @@ class Album extends React.Component {
 
 
     }
+    // Get Photographer information 
     getPhotographerInformation = async (email) => {
 
         console.log("getPhotographerInformationn");
@@ -144,7 +146,7 @@ class Album extends React.Component {
 
 
     }
-
+    // Get Photos of logged in photographer
     getPhotoByEmail = async (email) => {
         console.log("this is the submit button");
         const { loading, error, data } = await this.props.client.query({
@@ -184,6 +186,8 @@ class Album extends React.Component {
 
     componentDidMount = async () => {
 
+        console.log("this is the hello world method");
+        console.log("This is the data that came from S component", this.props.data);
 
         await this.getLogedInEmail();
         // await this.getPhotoByEmail()
@@ -198,10 +202,12 @@ class Album extends React.Component {
         await this.getPhotographerInformation(email);
 
 
-        console.log("photots", this.state.photographerData);
+        console.log("Photographers", this.state.photographerData);
 
+        console.log("this is the hello world method");
+        // this.photoSubscription();
 
-        await this.photoSubscription();
+        // await this.photoSubscription();
 
 
 
@@ -227,8 +233,8 @@ class Album extends React.Component {
         }
     }
     handleUpload = async () => {
-        console.log("upload image");
 
+        console.log("upload image");
 
         // 
 
@@ -266,43 +272,39 @@ class Album extends React.Component {
             sucess: 'Sccessfully uploaded...'
         })
 
-        // this.photoSubscription();
-
-
-
-
-
-
-
-
-
-
-        // console.log(data.insert_photographer.returning[0].PhotographerId);
-
-        await this.photoSubscription();
-
-        // 
-
+    }
+    _subscribeToNewLinks = async () => {
+        // ... you'll implement this 🔜
 
     }
+    // Subscribe photo
     photoSubscription = async () => {
-        const { loading, error, data } = await this.props.client.subscribe({
-            subscription: gql`
-            
-            subscription MySubscription {
-                Photos(where: {PhotographerEmail: {_eq: "${this.state.email}"}}) {
-                  PhotosName
-                }
-              }
-              
-              
-            `,
-        });
+        const GET_POST = gql`
+        subscription MySubscription {
+            Photos(where: {PhotographerEmail: {_eq: "yaredyaya16@gmail.com"}}) {
+              PhotosName
+            }
+          }
+          
+          
+        `;
 
-        await this.setState({ photosByEmail: data.Photos });
+
+        this.props.client
+            .subscribe({
+                subscription: GET_POST,
+
+            })
+
+            .then((response) => console.log("Response data comes from graphql : ", response.data))
+            .catch((err) => console.error(err));
+
 
     }
+
+
     render() {
+
         const { photosByEmail } = this.state;
         // const { photographer } = this.state.photographerData;
 
@@ -312,6 +314,7 @@ class Album extends React.Component {
 
         const { photographerData } = this.state;
         return (
+
             <React.Fragment>
 
 
@@ -374,40 +377,83 @@ class Album extends React.Component {
                     <Container className={classes.cardGrid} maxWidth="md">
                         {/* End hero unit */}
                         <Grid container spacing={4}>
-                            {photosByEmail.map((photo) => (
-                                <Grid item key={photo} xs={12} sm={6} md={4}>
-                                    <Card className={classes.card}>
-                                        <CardMedia
-                                            className={classes.cardMedia}
-                                            image={photo.PhotosName}
-                                            title="profile"
-                                        />
+                            <Subscription subscription={gql`
+                                    subscription{
+                                        Photos(where: {PhotographerEmail: {_eq: "yaredyaya16@gmail.com"}}) {
+                                          PhotosName
+                                        }
+                                      }
+                                      
+                            `}>
+                                {({ loading, error, data }) => {
+                                    if (loading) {
+                                        return (
+                                            <div>
+                                                <h1>
+                                                    Loading...
+                                                </h1>
+                                            </div>
+                                        );
+                                    }
+                                    if (error) {
+                                        return (
+                                            <div>
+                                                <h2>Error : {error.toString()}</h2>
+                                            </div>
+                                        );
+                                    }
+                                    if (data) {
+                                        console.log("data", data);
 
-                                        <CardContent className={classes.cardContent}>
-                                            <Typography gutterBottom variant="h5" component="h2">
-                                                {/* {photographer.fName + " " + photographer.lName} */}
-                                            </Typography>
-                                            <Typography>
-                                                This is a media card. You can use this section to describe the content.
+                                    }
+
+                                    return (
+
+
+                                        data.Photos.map((photo) => (
+                                            <Grid item key={photo} xs={12} sm={6} md={4}>
+                                                <Card className={classes.card}>
+                                                    <CardMedia
+                                                        className={classes.cardMedia}
+                                                        image={photo.PhotosName}
+                                                        title="profile"
+                                                    />
+
+                                                    <CardContent className={classes.cardContent}>
+                                                        <Typography gutterBottom variant="h5" component="h2">
+                                                            {/* {photographer.fName + " " + photographer.lName} */}
+                                                        </Typography>
+                                                        <Typography>
+                                                            This is a media card. You can use this section to describe the content.
                                         </Typography>
-                                        </CardContent>
-                                        <CardActions>
-                                            <Button size="small" color="primary">
-                                                View
+                                                    </CardContent>
+                                                    <CardActions>
+                                                        <Button size="small" color="primary">
+                                                            View
                                         </Button>
-                                            <Button size="small" color="primary">
-                                                Edit
+                                                        <Button size="small" color="primary">
+                                                            Edit
                                         </Button>
-                                        </CardActions>
-                                    </Card>
-                                </Grid>
-                            ))}
+                                                    </CardActions>
+                                                </Card>
+
+                                            </Grid>
+                                        ))
+
+
+                                    );
+
+                                }}
+
+                            </Subscription>
                         </Grid>
                     </Container>
                 </main>
+
             </React.Fragment >
         );
     }
 }
+
 export default withApollo(withStyles(useStyles)(Album))
 

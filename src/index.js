@@ -8,6 +8,7 @@ import SignUp from './Components/SignUp';
 // import ApolloClient from 'apollo-boost';
 import { ApolloProvider } from 'react-apollo';
 // import { WebSocketLink } from '@apollo/client/link/ws';
+
 import {
 
   ApolloClient,
@@ -22,7 +23,7 @@ import { WebSocketLink } from "@apollo/link-ws";
 
 // const httpClient = new ApolloClient({ uri: 'https://genuine-mammoth-32.hasura.app/v1/graphql' });
 
-const GRAPHQL_ENDPOINT = 'genuine-mammoth-32.hasura.app/v1/graphql';
+const GRAPHQL_ENDPOINT = 'gentle-ghost-74.hasura.app/v1/graphql';
 
 const httpLink = new HttpLink({
   uri: `https://${GRAPHQL_ENDPOINT}`,
@@ -32,7 +33,9 @@ const wsLink = new WebSocketLink({
   uri: `ws://${GRAPHQL_ENDPOINT}`,
   options: {
     reconnect: true,
-  },
+  }
+
+
 });
 
 const splitLink = split(
@@ -44,7 +47,7 @@ const splitLink = split(
     );
   },
   wsLink,
-  httpLink
+  wsLink
 );
 
 const client = new ApolloClient({

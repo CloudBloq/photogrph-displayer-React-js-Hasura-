@@ -28,7 +28,7 @@ function App() {
 
       <body>
         <div>
-          <Drawer />
+          <Album />
         </div>
       </body>
       <footer>
