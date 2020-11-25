@@ -198,8 +198,9 @@ class Album extends Component {
         console.log("email logged in", email);
 
         await this.setState({ email: email });
-        await this.getPhotoByEmail(email);
         await this.getPhotographerInformation(email);
+        await this.getPhotoByEmail(email);
+
 
 
         console.log("Photographers", this.state.photographerData);
@@ -271,6 +272,8 @@ class Album extends Component {
         await this.setState({
             sucess: 'Sccessfully uploaded...'
         })
+
+        console.log("Sccessfully uploaded...");
 
     }
     _subscribeToNewLinks = async () => {
@@ -379,7 +382,7 @@ class Album extends Component {
                         <Grid container spacing={4}>
                             <Subscription subscription={gql`
                                     subscription{
-                                        Photos(where: {PhotographerEmail: {_eq: "yaredyaya16@gmail.com"}}) {
+                                        Photos(where: {PhotographerEmail: {_eq: "${this.state.email}"}}) {
                                           PhotosName
                                         }
                                       }
